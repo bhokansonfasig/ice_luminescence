@@ -134,11 +134,11 @@ for i in range(len(pulse_bins)):
     while hit.utc<event_time:
         hit = hit_stream.next()
 
-    # Find any DOMs hit twice in the first 12 microseconds
+    # Find any DOMs hit twice in the first 32 microseconds
     hit_doms = []
     dead_doms = []
     lum_data = np.zeros(lum_n_bins,'d')
-    while hit.utc<event_time+120000:
+    while hit.utc<event_time+320000:
         if hit.omkey in hit_doms:
             dead_doms.append(hit.omkey)
         else:
@@ -146,6 +146,13 @@ for i in range(len(pulse_bins)):
         # dt = hit.utc-event_time
         # time_index = int(dt/lum_bin_width)
         # lum_data[time_index] += 1
+        hit = hit_stream.next()
+
+    # Get to the event in the hit stream again
+    if hit.utc>event_time:
+        hit_stream = load_stream(datadir,keyword=filekeyword,reuse_data=True)
+        hit = hit_stream.next()
+    while hit.utc<event_time:
         hit = hit_stream.next()
 
     # Create histogram, excluding the dead DOMs
