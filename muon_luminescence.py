@@ -15,8 +15,8 @@ import argparse
 
 parser_desc = """Script for plotting hits after MinBias events from i3 files"""
 parser_ep = """Note that this script depends on the standard python libraries
-               sys, datatime, numpy, matplotlib.pyplot; and the IceCube
-               project's library icecube"""
+               sys, os, os.path, datatime, numpy, matplotlib.pyplot;
+               and the IceCube project's custom library icecube"""
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(description=parser_desc, epilog=parser_ep)
@@ -46,7 +46,7 @@ filteri3 = args.filter
 
 
 # Standard libraries
-import sys
+import sys, os, os.path
 import datetime
 import numpy as np
 import matplotlib.pyplot as plt
@@ -67,6 +67,11 @@ def write_log(logline, logfilestr):
             logfile.close()
 
 
+def grab_filenames(datadir,keyword):
+    """Returns a list of file names in datadir containing the keyword"""
+    return []
+
+
 
 # Clear log file of old information
 if logfilename!=None:
@@ -75,8 +80,8 @@ if logfilename!=None:
 
 # Write first lines to log file
 dirstring = ""
-for datadir in datadirs:
-    dirstring += '\n\t'+datadir
+for directory in datadirs:
+    dirstring += '\n\t'+directory
 write_log("Reading i3 files from:"+dirstring, logfilename)
 if filekeyword:
     write_log("  filtered by keyword: "+filekeyword, logfilename)
@@ -85,7 +90,15 @@ if filekeyword:
 # Filtering files
 if filteri3:
     write_log("Filtering files and placing in: "+outputdir, logfilename)
-
+    infiles = []
+    for directory in datadirs:
+        infiles.extend(grab_filenames(directory,filekeyword))
+    for filename in infiles:
+        extension_index = filename.index(".i3")
+        outfilename = filename[:extension_index]+"_minbias"+\
+                      filename[extension_index:]
+        infile = dataio.I3File(filename)
+        outfile = dataio.I3File(outfilename,dataio.I3File.Writing)
 
 # Processing files
 else:
