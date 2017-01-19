@@ -1,4 +1,4 @@
-#!/bin/sh /cvmfs/icecube.opensciencegrid.org/py2-v1/icetray-start
+#!/bin/sh /cvmfs/icecube.opensciencegrid.org/py2-v2/icetray-start
 #
 # muon_luminescence.py
 # Script for plotting hits after MinBias events from i3 files
