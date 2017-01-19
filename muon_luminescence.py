@@ -33,7 +33,12 @@ parser.add_argument('-o', '--outputdir', default='.',
                     directory""")
 parser.add_argument('-k', '--keyword', default='', type=str,
                     help="""keyword for grabbing specific files from data
-                    directory/directories (any files containing keyword)""")
+                    directory/directories (any files containing the keyword)""")
+parser.add_argument('--antikeyword', type=str,
+                    default='thisISanANTIKEYWORDandHOPEFULLYitISlongENOUGHthatNOfileCOULDpossiblyHAVEit',
+                    help="""keyword for grabbing specific files from data
+                    directory/directories (any files NOT containing the
+                    antikeyword)""")
 parser.add_argument('--filter', action='store_true')
 args = parser.parse_args()
 
@@ -42,6 +47,7 @@ datadirs = args.datadir
 logfilename = args.logfile
 outputdir = args.outputdir
 filekeyword = args.keyword
+fileantikeyword = args.antikeyword
 filteri3 = args.filter
 
 
@@ -72,7 +78,8 @@ def grab_filenames(datadir,keyword):
     allfiles = os.listdir(datadir)
     matching = []
     for filename in allfiles:
-        if ".i3" in filename and filekeyword in filename:
+        if ".i3" in filename and filekeyword in filename and \
+        not(fileantikeyword in filename):
             matching.append(os.path.join(datadir,filename))
     return sorted(matching)
 
