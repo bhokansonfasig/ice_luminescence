@@ -74,7 +74,7 @@ def grab_filenames(datadir,keyword):
     for filename in allfiles:
         if ".i3" in filename and filekeyword in filename:
             matching.append(os.path.join(datadir,filename))
-    return matching
+    return sorted(matching)
 
 
 
@@ -104,9 +104,11 @@ if filteri3:
     total_events = 0
     for filename in infiles:
         i += 1
+        start_index = filename.index("/")+1
         extension_index = filename.index(".i3")
-        outfilename = filename[:extension_index]+"_minbias"+\
-                      filename[extension_index:]
+        outfilename = os.path.join(outputdir,
+                                   filename[start_index:extension_index]+\
+                                   "_minbias"+filename[extension_index:])
         write_log("Processing file "+filename+\
                   "  ("+str(i)+"/"+str(numfiles)+")", logfilename)
         infile = dataio.I3File(filename)
