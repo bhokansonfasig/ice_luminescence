@@ -6,7 +6,7 @@
 #
 # Ben Hokanson-Fasig
 # Created   01/18/17
-# Last edit 01/18/17
+# Last edit 01/19/17
 #
 
 
@@ -26,7 +26,7 @@ parser.add_argument('-l', '--logfile',
                     nargs='?', const='muon_lum_processing.log',
                     help="""log file in which to write progress, instead of
                     printing to stdout. If flag present without file
-                    name, uses 'hese_lum_processing.log'. Existing file will
+                    name, uses 'muon_lum_processing.log'. Existing file will
                     be overwritten""")
 parser.add_argument('-o', '--outputdir', default='.',
                     help="""directory to place output. Defaults to current
@@ -99,10 +99,16 @@ if filteri3:
     for directory in datadirs:
         infiles.extend(grab_filenames(directory,filekeyword))
 
+    i = 0
+    numfiles = len(infiles)
+    total_events = 0
     for filename in infiles:
+        i += 1
         extension_index = filename.index(".i3")
         outfilename = filename[:extension_index]+"_minbias"+\
                       filename[extension_index:]
+        write_log("Processing file "+filename+\
+                  "  ("+str(i)+"/"+str(numfiles)+")", logfilename)
         infile = dataio.I3File(filename)
         outfile = dataio.I3File(outfilename,dataio.I3File.Writing)
 
@@ -114,10 +120,14 @@ if filteri3:
                     not('SDST' in filtername):
                         if result.condition_passed and result.prescale_passed:
                             outfile.push(frame)
+                            if frame.Stop.id=="Q":
+                                total_events += 1
+
+        write_log(str(total_events)+" total events collected", logfilename)
 
         infile.close()
         outfile.close()
-        
+
 
 # Processing files
 else:
