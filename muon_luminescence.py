@@ -112,6 +112,7 @@ if filteri3:
         infile = dataio.I3File(filename)
         outfile = dataio.I3File(outfilename,dataio.I3File.Writing)
 
+        file_events = 0
         # Push any minbias-passed frames to output file
         for frame in infile:
             if 'QFilterMask' in frame:
@@ -121,9 +122,10 @@ if filteri3:
                         if result.condition_passed and result.prescale_passed:
                             outfile.push(frame)
                             if frame.Stop.id=="Q":
-                                total_events += 1
+                                file_events += 1
 
-        write_log(str(total_events)+" total events collected", logfilename)
+        write_log(str(file_events)+" events collected; total - "+\
+                  str(total_events), logfilename)
 
         infile.close()
         outfile.close()
