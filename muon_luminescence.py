@@ -134,3 +134,72 @@ if filteri3:
 # Processing files
 else:
     write_log("Outputting to: "+outputdir, logfilename)
+    infiles = []
+    for directory in datadirs:
+        infiles.extend(grab_filenames(directory,filekeyword))
+
+    bin_width = 1000
+    time_limit = 30000
+    n_bins = time_limit/bin_width
+
+    histo = np.zeros(n_bins,'d')
+
+    i = 0
+    numfiles = len(infiles)
+    total_events = 0
+    for filename in infiles:
+        i += 1
+        datafile = dataio.I3File(filename)
+
+        write_log("Processing file "+filename+\
+                  "  ("+str(i)+"/"+str(numfiles)+")", logfilename)
+
+        minbias_events = []
+        event = []
+        for frame in datafile:
+            if 'QFilterMask' in frame:
+                for filtername,result in frame['QFilterMask']:
+                    if ('FilterMinBias' in filtername) and \
+                    not('SDST' in filtername):
+                        if result.condition_passed and result.prescale_passed:
+                            if frame.Stop.id=="Q":
+                                if len(event)>0:
+                                    minbias_events.append(event)
+                                event = [frame]
+                            elif frame.Stop.id=="P":
+                                event.append(frame)
+
+        total_events += len(minbias_events)
+
+        for event in minbias_events:
+            q_frame = event[0]
+            for p_frame in event[1:]:
+                if 'InIcePulses' in p_frame:
+                    pulse_map = \
+                    dataclasses.I3RecoPulseSeriesMap.from_frame(p_frame,
+                                                     'InIcePulses')
+                    pulses = []
+                    for key,value in pulse_map.iteritems():
+                        pulses.extend(value)
+                    times = []
+                    for pulse in pulses:
+                        times.append(pulse.time)
+
+                    for pulse_time in times:
+                        time_index = int(pulse_time/bin_width)
+                        histo[time_index] += 1
+
+                else:
+                    write_log("  InIcePulses not found in frame", logfilename)
+                    
+
+    plot_title = str(total_events)+" minbias events"
+    plt.figure()
+    plt.semilogx(histo)
+    # plt.axhline(y=mean, color='k')
+    plt.title(plot_title)
+    plt.xlabel("Time since event (microseconds)")
+    plt.ylabel("Hits per microsecond bin")
+    plotfilename = os.path.join(outputdir,plot_title.replace(" ","_")+".png")
+    plt.savefig(plotfilename)
+    # plt.show()
