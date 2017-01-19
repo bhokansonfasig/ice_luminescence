@@ -104,7 +104,7 @@ if filteri3:
     total_events = 0
     for filename in infiles:
         i += 1
-        start_index = filename.index("/")+1
+        start_index = filename.rfind("/")+1
         extension_index = filename.index(".i3")
         outfilename = os.path.join(outputdir,
                                    filename[start_index:extension_index]+\
@@ -125,6 +125,7 @@ if filteri3:
                             outfile.push(frame)
                             if frame.Stop.id=="Q":
                                 file_events += 1
+        total_events += file_events
 
         write_log(str(file_events)+" events collected; total - "+\
                   str(total_events), logfilename)
