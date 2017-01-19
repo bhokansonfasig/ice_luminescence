@@ -1,4 +1,5 @@
 #!/bin/sh /cvmfs/icecube.opensciencegrid.org/py2-v2/icetray-start
+#METAPROJECT offline-software/trunk
 #
 # muon_luminescence.py
 # Script for plotting hits after MinBias events from i3 files
@@ -7,7 +8,6 @@
 # Ben Hokanson-Fasig
 # Created   01/18/17
 # Last edit 01/19/17
-#
 
 
 from __future__ import division, print_function
