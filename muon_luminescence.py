@@ -69,7 +69,12 @@ def write_log(logline, logfilestr):
 
 def grab_filenames(datadir,keyword):
     """Returns a list of file names in datadir containing the keyword"""
-    return []
+    allfiles = os.listdir(datadir)
+    matching = []
+    for filename in allfiles:
+        if ".i3" in filename and filekeyword in filename:
+            matching.append(os.path.join(datadir,filename))
+    return matching
 
 
 
@@ -93,12 +98,26 @@ if filteri3:
     infiles = []
     for directory in datadirs:
         infiles.extend(grab_filenames(directory,filekeyword))
+
     for filename in infiles:
         extension_index = filename.index(".i3")
         outfilename = filename[:extension_index]+"_minbias"+\
                       filename[extension_index:]
         infile = dataio.I3File(filename)
         outfile = dataio.I3File(outfilename,dataio.I3File.Writing)
+
+        # Push any minbias-passed frames to output file
+        for frame in infile:
+            if 'QFilterMask' in frame:
+                for filtername,result in frame['QFilterMask']:
+                    if ('FilterMinBias' in filtername) and \
+                    not('SDST' in filtername):
+                        if result.condition_passed and result.prescale_passed:
+                            outfile.push(frame)
+
+        infile.close()
+        outfile.close()
+        
 
 # Processing files
 else:
