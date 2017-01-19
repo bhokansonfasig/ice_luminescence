@@ -139,7 +139,7 @@ else:
         infiles.extend(grab_filenames(directory,filekeyword))
 
     bin_width = 1000
-    time_limit = 30000
+    time_limit = 100000
     n_bins = time_limit/bin_width
 
     histo = np.zeros(n_bins,'d')
@@ -187,18 +187,19 @@ else:
 
                     for pulse_time in times:
                         time_index = int(pulse_time/bin_width)
-                        histo[time_index] += 1
+                        if time_index<len(histo):
+                            histo[time_index] += 1
 
                 else:
                     write_log("  InIcePulses not found in frame", logfilename)
-                    
+
 
     plot_title = str(total_events)+" minbias events"
     plt.figure()
-    plt.semilogx(histo)
+    plt.plot(histo)
     # plt.axhline(y=mean, color='k')
     plt.title(plot_title)
-    plt.xlabel("Time since event (microseconds)")
+    plt.xlabel("Time (microseconds)")
     plt.ylabel("Hits per microsecond bin")
     plotfilename = os.path.join(outputdir,plot_title.replace(" ","_")+".png")
     plt.savefig(plotfilename)
