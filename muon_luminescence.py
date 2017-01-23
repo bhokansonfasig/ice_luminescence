@@ -7,7 +7,7 @@
 #
 # Ben Hokanson-Fasig
 # Created   01/18/17
-# Last edit 01/19/17
+# Last edit 01/23/17
 
 
 from __future__ import division, print_function
@@ -55,6 +55,9 @@ filteri3 = args.filter
 import sys, os, os.path
 import datetime
 import numpy as np
+import matplotlib
+# Uncomment get plots without an X server
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 # IceCube libraries
