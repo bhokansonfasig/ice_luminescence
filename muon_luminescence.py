@@ -213,10 +213,9 @@ else:
                         if time_index<len(hits_histogram):
                             hits_histogram[time_index] += 1
 
-                    trigger_time = int(trigger_window.time)
-                    for trigger_time in range(int(trigger_window.time),
-                            int(trigger_window.time+trigger_window.length)+1):
-                        time_index = int(trigger_time/bin_width)
+                    for time_index in range(int(trigger_window.time/bin_width),
+                                      int((trigger_window.time+\
+                                      trigger_window.length)/bin_width)+1):
                         if time_index<len(trigger_histogram):
                             trigger_histogram[time_index] += 1
 
