@@ -7,7 +7,7 @@
 #
 # Ben Hokanson-Fasig
 # Created   01/18/17
-# Last edit 01/23/17
+# Last edit 01/24/17
 
 
 from __future__ import division, print_function
@@ -155,7 +155,8 @@ else:
     time_limit = 100000
     n_bins = time_limit/bin_width
 
-    histo = np.zeros(n_bins,'d')
+    hits_histogram = np.zeros(n_bins)
+    trigger_histogram = np.zeros(n_bins)
 
     i = 0
     numfiles = len(infiles)
@@ -167,6 +168,8 @@ else:
         write_log("Processing file "+filename+\
                   "  ("+str(i)+"/"+str(numfiles)+")", logfilename)
 
+        # Grab each minbias-passed frame and group them as events with
+        # one Q frame followed by any number of P frames
         minbias_events = []
         event = []
         for frame in datafile:
@@ -184,10 +187,19 @@ else:
 
         total_events += len(minbias_events)
 
+        # For each event, get the trigger window from the first P frame with
+        # that information available, then add the pulses from that frame's
+        # pulse map into the histogram and take note of which bins were included
+        # in the trigger window for dividing out later
         for event in minbias_events:
             q_frame = event[0]
             for p_frame in event[1:]:
-                if 'InIcePulses' in p_frame:
+                if 'I3TriggerHierarchy' in p_frame:
+                    for key,value in p_frame['I3TriggerHierarchy'].iteritems():
+                        if value.key.type==value.key.type.MERGED:
+                            trigger_window = value
+                            break
+
                     pulse_map = \
                     dataclasses.I3RecoPulseSeriesMap.from_frame(p_frame,
                                                      'InIcePulses')
@@ -200,16 +212,28 @@ else:
 
                     for pulse_time in times:
                         time_index = int(pulse_time/bin_width)
-                        if time_index<len(histo):
-                            histo[time_index] += 1
+                        if time_index<len(hits_histogram):
+                            hits_histogram[time_index] += 1
+
+                    trigger_time = int(trigger_window.time)
+                    for trigger_time in range(int(trigger_window.time),
+                            int(trigger_window.time+trigger_window.length)):
+                        time_index = int(trigger_time*1000/bin_width)
+                        if time_index<len(trigger_histogram):
+                            trigger_histogram[time_index] += 1
+
+                    break
 
                 else:
                     write_log("  InIcePulses not found in frame", logfilename)
 
 
+    # Data histogram provided by dividing hits histogram by trigger window hist
+    data_histogram = hits_histogram / trigger_histogram
+
     plot_title = str(total_events)+" minbias events"
     plt.figure()
-    plt.plot(histo)
+    plt.plot(data_histogram)
     # plt.axhline(y=mean, color='k')
     plt.title(plot_title)
     plt.xlabel("Time (microseconds)")
