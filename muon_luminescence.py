@@ -225,11 +225,16 @@ else:
                     break
 
                 else:
-                    write_log("  InIcePulses not found in frame", logfilename)
+                    write_log("  I3TriggerHierarchy not found in frame", logfilename)
 
 
     # Data histogram provided by dividing hits histogram by trigger window hist
-    data_histogram = hits_histogram / trigger_histogram
+    data_histogram = np.zeros(n_bins)
+    for i in range(len(trigger_histogram)):
+        if trigger_histogram[i]==0:
+            data_histogram[i] = 0
+        else:
+            data_histogram[i] = hits_histogram[i]/trigger_histogram[i]
 
     plot_title = str(total_events)+" minbias events"
     plt.figure()
