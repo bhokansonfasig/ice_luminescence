@@ -152,7 +152,7 @@ else:
         infiles.extend(grab_filenames(directory,filekeyword))
 
     bin_width = 1000
-    time_limit = 100000
+    time_limit = 50000
     n_bins = time_limit/bin_width
 
     hits_histogram = np.zeros(n_bins)
@@ -215,8 +215,8 @@ else:
 
                     trigger_time = int(trigger_window.time)
                     for trigger_time in range(int(trigger_window.time),
-                            int(trigger_window.time+trigger_window.length)):
-                        time_index = int(trigger_time*1000/bin_width)
+                            int(trigger_window.time+trigger_window.length)+1):
+                        time_index = int(trigger_time/bin_width)
                         if time_index<len(trigger_histogram):
                             trigger_histogram[time_index] += 1
 
@@ -240,8 +240,8 @@ else:
     plt.plot(data_histogram)
     # plt.axhline(y=mean, color='k')
     plt.title(plot_title)
-    plt.xlabel("Time (microseconds)")
-    plt.ylabel("Hits per microsecond bin")
+    plt.xlabel("Time (microsecond bins)")
+    plt.ylabel("Hits per bin - rescaled")
     plotfilename = os.path.join(outputdir,plot_title.replace(" ","_")+".png")
     plt.savefig(plotfilename)
     # plt.show()
