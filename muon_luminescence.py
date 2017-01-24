@@ -185,8 +185,6 @@ else:
                             elif frame.Stop.id=="P":
                                 event.append(frame)
 
-        total_events += len(minbias_events)
-
         # For each event, get the trigger window from the first P frame with
         # that information available, then add the pulses from that frame's
         # pulse map into the histogram and take note of which bins were included
@@ -222,6 +220,7 @@ else:
                         if time_index<len(trigger_histogram):
                             trigger_histogram[time_index] += 1
 
+                    total_events += 1
                     break
 
                 else:
