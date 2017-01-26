@@ -163,7 +163,7 @@ else:
         infiles.extend(grab_filenames(directory,filekeyword))
 
     bin_width = 1000
-    time_limit = 50000
+    time_limit = 100000
     n_bins = time_limit/bin_width
 
     hits_histogram = np.zeros(n_bins)
