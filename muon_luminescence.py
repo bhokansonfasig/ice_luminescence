@@ -163,7 +163,7 @@ else:
         infiles.extend(grab_filenames(directory,filekeyword))
 
     bin_width = 1000
-    time_limit = 100000
+    time_limit = 1000000
     n_bins = time_limit/bin_width
 
     hits_histogram = np.zeros(n_bins)
@@ -203,6 +203,7 @@ else:
         for event in minbias_events:
             q_frame = event[0]
             for p_frame in event[1:]:
+                frame_not_analyzed = True
                 if 'I3TriggerHierarchy' in p_frame:
                     for key,value in p_frame['I3TriggerHierarchy'].iteritems():
                         if value.key.type==value.key.type.MERGED:
@@ -231,10 +232,11 @@ else:
                             trigger_histogram[time_index] += 1
 
                     total_events += 1
+                    frame_not_analyzed = False
                     break
 
-                else:
-                    write_log("  I3TriggerHierarchy not found in frame", logfilename)
+            if frame_not_analyzed:
+                write_log("  I3TriggerHierarchy not found in frame",logfilename)
 
 
     # Data histogram provided by dividing hits histogram by trigger window hist
