@@ -220,16 +220,20 @@ else:
                     for pulse in pulses:
                         times.append(pulse.time)
 
-                    for pulse_time in times:
-                        time_index = int(pulse_time/bin_width)
-                        if time_index<len(hits_histogram):
-                            hits_histogram[time_index] += 1
+                    trig_window_start = int(trigger_window.time/bin_width)
+                    trig_window_stop = int((trigger_window.time+\
+                                       trigger_window.length)/bin_width)
 
-                    for time_index in range(int(trigger_window.time/bin_width),
-                                      int((trigger_window.time+\
-                                      trigger_window.length)/bin_width)+1):
+                    for time_index in range(trig_window_start,
+                                            trig_window_stop+1):
                         if time_index<len(trigger_histogram):
                             trigger_histogram[time_index] += 1
+
+                    for pulse_time in times:
+                        time_index = int(pulse_time/bin_width)
+                        if time_index>=trig_window_start and \
+                           time_index<=trig_window_stop:
+                            hits_histogram[time_index] += 1
 
                     total_events += 1
                     frame_not_analyzed = False
