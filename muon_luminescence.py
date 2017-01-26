@@ -262,6 +262,7 @@ else:
     if picklefilename!=None:
         picklefilename = os.path.join(outputdir,picklefilename)
         hists = {}
+        hists['num_events'] = total_events
         hists['hits'] = hits_histogram
         hists['triggers'] = trigger_histogram
         hists['plot'] = data_histogram
