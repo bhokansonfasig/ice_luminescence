@@ -258,11 +258,13 @@ else:
 
 
     if picklefilename!=None:
+        picklefilename = os.path.join(outputdir,picklefilename)
         hists = {}
         hists['hits'] = hits_histogram
         hists['triggers'] = trigger_histogram
         hists['plot'] = data_histogram
         # Store data into pickle
-        write_log("Storing histograms to pickle...", logfilename)
+        write_log("Storing histograms to pickle file "+picklefilename,
+                  logfilename)
         with open(picklefilename, 'wb') as picklefile:
             pickle.dump(hists, picklefile, protocol=pickle.HIGHEST_PROTOCOL)
