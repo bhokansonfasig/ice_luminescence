@@ -7,7 +7,7 @@
 #
 # Ben Hokanson-Fasig
 # Created   01/18/17
-# Last edit 01/24/17
+# Last edit 01/26/17
 
 
 from __future__ import division, print_function
@@ -15,7 +15,7 @@ import argparse
 
 parser_desc = """Script for plotting hits after MinBias events from i3 files"""
 parser_ep = """Note that this script depends on the standard python libraries
-               sys, os, os.path, datatime, numpy, matplotlib.pyplot;
+               sys, os, os.path, datatime, numpy, matplotlib.pyplot, cPickle;
                and the IceCube project's custom library icecube"""
 
 # Parse command line arguments
@@ -40,6 +40,13 @@ parser.add_argument('--antikeyword', type=str,
                     directory/directories (any files NOT containing the
                     antikeyword)""")
 parser.add_argument('--filter', action='store_true')
+parser.add_argument('--showplots', action='store_true')
+parser.add_argument('-p','--pickle',
+                    nargs='?', const='muon_plot_histograms.pickle',
+                    help="""pickle file in which to save histograms.
+                    If flag present without file name, uses
+                    'muon_plot_histograms.pickle'. Existing file will
+                    be overwritten""")
 args = parser.parse_args()
 
 # Store arguments to variables for rest of the script
@@ -49,6 +56,8 @@ outputdir = args.outputdir
 filekeyword = args.keyword
 fileantikeyword = args.antikeyword
 filteri3 = args.filter
+showplots = args.showplots
+picklefilename = args.pickle
 
 
 # Standard libraries
@@ -56,9 +65,11 @@ import sys, os, os.path
 import datetime
 import numpy as np
 import matplotlib
-# Uncomment get plots without an X server
-matplotlib.use('Agg')
+if not(showplots):
+    # Get saved plots on machines without an X server
+    matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import cPickle as pickle
 
 # IceCube libraries
 from icecube import dataio, dataclasses
@@ -237,10 +248,21 @@ else:
     plot_title = str(total_events)+" minbias events"
     plt.figure()
     plt.plot(data_histogram)
-    # plt.axhline(y=mean, color='k')
     plt.title(plot_title)
     plt.xlabel("Time (microsecond bins)")
-    plt.ylabel("Hits per bin - rescaled")
+    plt.ylabel("Hits per bin - rescaled by number of trigger windows in bin")
     plotfilename = os.path.join(outputdir,plot_title.replace(" ","_")+".png")
     plt.savefig(plotfilename)
-    # plt.show()
+    if showplots:
+        plt.show()
+
+
+    if picklefilename!=None:
+        hists = {}
+        hists['hits'] = hits_histogram
+        hists['triggers'] = trigger_histogram
+        hists['plot'] = data_histogram
+        # Store data into pickle
+        write_log("Storing histograms to pickle...", logfilename)
+        with open(picklefilename, 'wb') as picklefile:
+            pickle.dump(hists, picklefile, protocol=pickle.HIGHEST_PROTOCOL)
