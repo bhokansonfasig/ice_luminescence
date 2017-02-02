@@ -86,13 +86,13 @@ def write_log(logline, logfilestr):
             logfile.close()
 
 
-def grab_filenames(datadir,keyword):
+def grab_filenames(datadir,keyword,antikeyword):
     """Returns a list of file names in datadir containing the keyword"""
     allfiles = os.listdir(datadir)
     matching = []
     for filename in allfiles:
-        if ".i3" in filename and filekeyword in filename and \
-        not(fileantikeyword in filename):
+        if ".i3" in filename and keyword in filename and \
+        not(antikeyword in filename):
             matching.append(os.path.join(datadir,filename))
     return sorted(matching)
 
@@ -117,7 +117,7 @@ if filteri3:
     write_log("Filtering files and placing in: "+outputdir, logfilename)
     infiles = []
     for directory in datadirs:
-        infiles.extend(grab_filenames(directory,filekeyword))
+        infiles.extend(grab_filenames(directory,filekeyword,fileantikeyword))
 
     i = 0
     numfiles = len(infiles)
@@ -159,7 +159,7 @@ else:
     write_log("Outputting to: "+outputdir, logfilename)
     infiles = []
     for directory in datadirs:
-        infiles.extend(grab_filenames(directory,filekeyword))
+        infiles.extend(grab_filenames(directory,filekeyword,fileantikeyword))
 
     bin_width = 1000
     time_limit = 10000000
