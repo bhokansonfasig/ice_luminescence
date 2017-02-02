@@ -7,7 +7,7 @@
 #
 # Ben Hokanson-Fasig
 # Created   01/18/17
-# Last edit 01/26/17
+# Last edit 02/02/17
 
 
 from __future__ import division, print_function
@@ -15,7 +15,7 @@ import argparse
 
 parser_desc = """Script for plotting hits after MinBias events from i3 files"""
 parser_ep = """Note that this script depends on the standard python libraries
-               sys, os, os.path, datatime, numpy, matplotlib.pyplot, cPickle;
+               sys, os, os.path, numpy, matplotlib.pyplot, cPickle;
                and the IceCube project's custom library icecube"""
 
 # Parse command line arguments
@@ -62,7 +62,6 @@ picklefilename = args.pickle
 
 # Standard libraries
 import sys, os, os.path
-import datetime
 import numpy as np
 import matplotlib
 if not(showplots):
