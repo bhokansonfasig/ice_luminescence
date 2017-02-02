@@ -195,7 +195,7 @@ else:
                             elif frame.Stop.id=="P":
                                 event.append(frame)
 
-        # For each event, get the trigger window from the first P frame with
+        # For each event, get the trigger window from each P frame with
         # that information available, then add the pulses from that frame's
         # pulse map into the histogram and take note of which bins were included
         # in the trigger window for dividing out later
@@ -236,7 +236,6 @@ else:
 
                     total_events += 1
                     frame_not_analyzed = False
-                    # break
 
             if frame_not_analyzed:
                 write_log("  I3TriggerHierarchy not found in frame",logfilename)
