@@ -39,7 +39,7 @@ parser.add_argument('--antikeyword', type=str,
                     help="""keyword for grabbing specific files from data
                     directory/directories (any files NOT containing the
                     antikeyword)""")
-parser.add_argument('-b','--basename', type=str,
+parser.add_argument('-b','--basename', default='separated_events', type=str,
                     help="""basename for output files. Defaults to
                     'separated_events'""")
 args = parser.parse_args()
