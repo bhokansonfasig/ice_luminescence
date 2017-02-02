@@ -16,8 +16,7 @@ import argparse
 parser_desc = """Script for breaking min_bias filtered i3 file into
                  timescale-based category files of events"""
 parser_ep = """Note that this script depends on the standard python libraries
-               sys, os, os.path; and the IceCube project's custom library
-               icecube"""
+               os, os.path; and the IceCube project's custom library icecube"""
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(description=parser_desc, epilog=parser_ep)
@@ -40,6 +39,9 @@ parser.add_argument('--antikeyword', type=str,
                     help="""keyword for grabbing specific files from data
                     directory/directories (any files NOT containing the
                     antikeyword)""")
+parser.add_argument('-b','--basename', type=str,
+                    help="""basename for output files. Defaults to
+                    'separated_events'""")
 args = parser.parse_args()
 
 # Store arguments to variables for rest of the script
@@ -48,18 +50,11 @@ logfilename = args.logfile
 outputdir = args.outputdir
 filekeyword = args.keyword
 fileantikeyword = args.antikeyword
+basename = args.basename
 
 
 # Standard libraries
-import sys, os, os.path
-import datetime
-import numpy as np
-import matplotlib
-if not(showplots):
-    # Get saved plots on machines without an X server
-    matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import cPickle as pickle
+import os, os.path
 
 # IceCube libraries
 from icecube import dataio, dataclasses
@@ -109,29 +104,29 @@ infiles = []
 for directory in datadirs:
     infiles.extend(grab_filenames(directory,filekeyword,fileantikeyword))
 
+
+# Make seaparated files
+extension_index = infiles[0].index(".i3")
+s_outfilename = os.path.join(outputdir,
+                             basename+"_short"+infiles[0][extension_index:])
+m_outfilename = os.path.join(outputdir,
+                             basename+"_medium"+infiles[0][extension_index:])
+l_outfilename = os.path.join(outputdir,
+                             basename+"_long"+infiles[0][extension_index:])
+s_outfile = dataio.I3File(s_outfilename,dataio.I3File.Writing)
+m_outfile = dataio.I3File(m_outfilename,dataio.I3File.Writing)
+l_outfile = dataio.I3File(l_outfilename,dataio.I3File.Writing)
+
+
+# Loop through and separate events into appropriate files
 i = 0
 numfiles = len(infiles)
-total_events = 0
 for filename in infiles:
     i += 1
-    start_index = filename.rfind("/")+1
-    extension_index = filename.index(".i3")
-    s_outfilename = os.path.join(outputdir,
-                                 filename[start_index:extension_index]+\
-                                 "_short"+filename[extension_index:])
-    m_outfilename = os.path.join(outputdir,
-                                 filename[start_index:extension_index]+\
-                                 "_medium"+filename[extension_index:])
-    l_outfilename = os.path.join(outputdir,
-                                 filename[start_index:extension_index]+\
-                                 "_long"+filename[extension_index:])
+
     write_log("Processing file "+filename+\
               "  ("+str(i)+"/"+str(numfiles)+")", logfilename)
     infile = dataio.I3File(filename)
-    s_outfile = dataio.I3File(s_outfilename,dataio.I3File.Writing)
-    m_outfile = dataio.I3File(m_outfilename,dataio.I3File.Writing)
-    l_outfile = dataio.I3File(l_outfilename,dataio.I3File.Writing)
-
 
     # Grab each minbias-passed frame and group them as events with
     # one Q frame followed by any number of P frames
@@ -179,6 +174,7 @@ for filename in infiles:
                     l_outfile.push(p_frame)
 
     infile.close()
-    s_outfile.close()
-    m_outfile.close()
-    l_outfile.close()
+
+s_outfile.close()
+m_outfile.close()
+l_outfile.close()
