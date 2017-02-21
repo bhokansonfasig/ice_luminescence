@@ -212,7 +212,7 @@ for filename in infiles:
 plot_title = str(total_events)+" DOM events recentered"
 plt.figure()
 plt.plot(hits_histogram)
-plt.axis([0,25,0,total_events/2])
+plt.axis([0,250,0,total_events/2])
 plt.title(plot_title)
 plt.xlabel("Time (0.1 microsecond bins relative to DOM event)")
 plt.ylabel("Charge per bin")
