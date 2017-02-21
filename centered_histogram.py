@@ -115,8 +115,8 @@ infiles = []
 for directory in datadirs:
     infiles.extend(grab_filenames(directory,filekeyword,fileantikeyword))
 
-bin_width = 1000
-time_limit = 10000000
+bin_width = 100
+time_limit = 1000000
 n_bins = time_limit/bin_width
 
 hits_histogram = np.zeros(n_bins)
@@ -214,7 +214,7 @@ plt.figure()
 plt.plot(hits_histogram)
 plt.axis([0,25,0,total_events/2])
 plt.title(plot_title)
-plt.xlabel("Time (microsecond bins relative to DOM event)")
+plt.xlabel("Time (0.1 microsecond bins relative to DOM event)")
 plt.ylabel("Charge per bin")
 plotfilename = os.path.join(outputdir,plot_title.replace(" ","_")+".png")
 plt.savefig(plotfilename)
