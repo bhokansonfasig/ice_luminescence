@@ -170,7 +170,7 @@ for filename in infiles:
                 for dom,pulses in pulse_map.iteritems():
                     time_offset = 0
                     for pulse in pulses:
-                        if pulse.charge>=5:
+                        if pulse.charge>=10:
                             time_offset = pulse.time
                             break
 
@@ -216,9 +216,9 @@ x_max = 25000/bin_width
 y_max = total_events*bin_width/2000
 plt.axis([0,x_max,0,y_max])
 plt.title(plot_title)
-plt.xlabel("Time (0.1 microsecond bins relative to DOM event)")
+plt.xlabel("Time ("+str(bin_width/1000)+" microsecond bins relative to DOM event)")
 plt.ylabel("Charge per bin")
-plt.text(x_max*.3,y_max*.9,str(hits_histogram[0])+" hits in event bin")
+plt.text(x_max*.2,y_max*.9,str(int(hits_histogram[0]))+" in event bin")
 plotfilename = os.path.join(outputdir,plot_title.replace(" ","_")+".png")
 plt.savefig(plotfilename)
 if showplots:
