@@ -208,7 +208,7 @@ for filename in infiles:
 #     else:
 #         data_histogram[i] = hits_histogram[i]/trigger_histogram[i]
 
-plot_title = str(total_events)+" minbias events"
+plot_title = str(total_events)+" minbias events recentered"
 plt.figure()
 plt.plot(hits_histogram)
 plt.title(plot_title)
