@@ -177,7 +177,7 @@ for filename in infiles:
                     if time_offset>0:
                         for pulse in pulses:
                             time_index = int((pulse.time-time_offset)/bin_width)
-                            if time_index>0 and time_index<n_bins:
+                            if time_index>=0 and time_index<n_bins:
                                 hits_histogram[time_index] += pulse.charge
                         total_events += 1
                         frame_not_analyzed = False
@@ -212,7 +212,7 @@ for filename in infiles:
 plot_title = str(total_events)+" DOM events recentered"
 plt.figure()
 plt.plot(hits_histogram)
-plt.axis([0,25,0,total_events])
+plt.axis([0,25,0,total_events/2])
 plt.title(plot_title)
 plt.xlabel("Time (microsecond bins relative to DOM event)")
 plt.ylabel("Charge per bin")
