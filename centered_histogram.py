@@ -177,7 +177,7 @@ for filename in infiles:
                     if time_offset>0:
                         for pulse in pulses:
                             time_index = int((pulse.time-time_offset)/bin_width)
-                            if time_index<nbins:
+                            if time_index<n_bins:
                                 hits_histogram[time_index] += pulse.charge
                         total_events += 1
                         frame_not_analyzed = False
