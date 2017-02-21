@@ -209,10 +209,10 @@ for filename in infiles:
 #     else:
 #         data_histogram[i] = hits_histogram[i]/trigger_histogram[i]
 
-plot_title = str(total_events)+" DOM events recentered"
+plot_title = str(total_events)+" DOM events recentered small bins"
 plt.figure()
 plt.plot(hits_histogram)
-plt.axis([0,250,0,total_events/2])
+plt.axis([0,250,0,total_events/50])
 plt.title(plot_title)
 plt.xlabel("Time (0.1 microsecond bins relative to DOM event)")
 plt.ylabel("Charge per bin")
