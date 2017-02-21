@@ -212,10 +212,13 @@ for filename in infiles:
 plot_title = str(total_events)+" DOM events recentered small bins"
 plt.figure()
 plt.plot(hits_histogram)
-plt.axis([0,250,0,total_events/50])
+x_max = 25000/bin_width
+y_max = total_events*bin_width/2000
+plt.axis([0,x_max,0,y_max])
 plt.title(plot_title)
 plt.xlabel("Time (0.1 microsecond bins relative to DOM event)")
 plt.ylabel("Charge per bin")
+plt.text(x_max*.3,y_max*.9,str(hits_histogram[0])+" hits in event bin")
 plotfilename = os.path.join(outputdir,plot_title.replace(" ","_")+".png")
 plt.savefig(plotfilename)
 if showplots:
