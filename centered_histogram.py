@@ -116,7 +116,7 @@ for directory in datadirs:
     infiles.extend(grab_filenames(directory,filekeyword,fileantikeyword))
 
 bin_width = 1000
-time_limit = 10000000
+time_limit = 100000
 n_bins = time_limit/bin_width
 
 hits_histogram = np.zeros(n_bins)
@@ -177,7 +177,8 @@ for filename in infiles:
                     if time_offset>0:
                         for pulse in pulses:
                             time_index = int((pulse.time-time_offset)/bin_width)
-                            hits_histogram[time_index] += pulse.charge
+                            if time_index<nbins:
+                                hits_histogram[time_index] += pulse.charge
                         total_events += 1
                         frame_not_analyzed = False
 
@@ -208,7 +209,7 @@ for filename in infiles:
 #     else:
 #         data_histogram[i] = hits_histogram[i]/trigger_histogram[i]
 
-plot_title = str(total_events)+" minbias events recentered"
+plot_title = str(total_events)+" DOM events recentered"
 plt.figure()
 plt.plot(hits_histogram)
 plt.title(plot_title)
