@@ -219,9 +219,9 @@ else:
                             trigger_window = value
                             break
 
-                    # Ignore events with trigger window larger than 10 microseconds
+                    # Ignore events with trigger window larger than 15 microseconds
                     # Should cut out coincident muons and slow particle triggers
-                    if trigger_window.length>10000:
+                    if trigger_window.length>15000:
                         continue
 
                     pulse_map = \
@@ -256,7 +256,7 @@ else:
                     frame_not_analyzed = False
 
             if frame_not_analyzed:
-                write_log("  I3TriggerHierarchy not found in frame",logfilename)
+                write_log("  problems analyzing frame",logfilename)
 
 
     # Plot total late charge vs total event charge for each event
