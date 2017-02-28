@@ -70,7 +70,7 @@ import cPickle as pickle
 
 # IceCube libraries
 from icecube import dataio, dataclasses
-from icecube.phys_services.I3Calculator import time_residual
+from icecube.phys_services import I3Calculator
 
 
 # Function for writing log statements
@@ -234,8 +234,9 @@ else:
                     late_pulses = []
                     for om,pulses in pulse_map.iteritems():
                         for pulse in pulses:
-                            t_res = time_residual(fit_particle,om_geometry[om].position,
-                                                  pulse.time)
+                            t_res = I3Calculator.time_residual(fit_particle,
+                                                               om_geometry[om].position,
+                                                               pulse.time)
                             if t_res>-75 and t_res<200:
                                 event_pulses.append(pulse)
                             elif t_res>1000:
