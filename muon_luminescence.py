@@ -22,6 +22,10 @@ parser_ep = """Note that this script depends on the standard python libraries
 parser = argparse.ArgumentParser(description=parser_desc, epilog=parser_ep)
 parser.add_argument('datadir', nargs='+',
                     help="directory containing zipped i3 files")
+parser.add_argument('-g', '--gcdfile', default='',
+                    help="""GCD file corresponding to i3 files in datadir.
+                    If not provided and only one file containing 'GCD' is
+                    found in the directory, it will be used""")
 parser.add_argument('-l', '--logfile',
                     nargs='?', const='muon_lum_processing.log',
                     help="""log file in which to write progress, instead of
@@ -35,29 +39,23 @@ parser.add_argument('-k', '--keyword', default='', type=str,
                     help="""keyword for grabbing specific files from data
                     directory/directories (any files containing the keyword)""")
 parser.add_argument('--antikeyword', type=str,
-                    default='thisISanANTIKEYWORDandHOPEFULLYitISlongENOUGHthatNOfileCOULDpossiblyHAVEit',
+                    default='thisISanANTIKEYWORDandHOPEFULLYitISlongANDobscureENOUGHthatNOfileCOULDpossiblyHAVEit',
                     help="""keyword for grabbing specific files from data
                     directory/directories (any files NOT containing the
                     antikeyword)""")
 parser.add_argument('--filter', action='store_true')
 parser.add_argument('--showplots', action='store_true')
-parser.add_argument('-p','--pickle',
-                    nargs='?', const='muon_plot_histograms.pickle',
-                    help="""pickle file in which to save histograms.
-                    If flag present without file name, uses
-                    'muon_plot_histograms.pickle'. Existing file will
-                    be overwritten""")
 args = parser.parse_args()
 
 # Store arguments to variables for rest of the script
 datadirs = args.datadir
+gcdfilename = args.gcdfile
 logfilename = args.logfile
 outputdir = args.outputdir
 filekeyword = args.keyword
 fileantikeyword = args.antikeyword
 filteri3 = args.filter
 showplots = args.showplots
-picklefilename = args.pickle
 
 
 # Standard libraries
@@ -72,6 +70,7 @@ import cPickle as pickle
 
 # IceCube libraries
 from icecube import dataio, dataclasses
+from icecube.phys_services.I3Calculator import time_residual
 
 
 # Function for writing log statements
@@ -161,12 +160,24 @@ else:
     for directory in datadirs:
         infiles.extend(grab_filenames(directory,filekeyword,fileantikeyword))
 
-    bin_width = 1000
-    time_limit = 10000000
-    n_bins = time_limit/bin_width
+    if not(gcdfilename):
+        possiblegcd = grab_filenames(directory,"GCD",fileantikeyword)
+        if len(possiblegcd)==1:
+            gcdfilename = possiblegcd[0]
 
-    hits_histogram = np.zeros(n_bins)
-    trigger_histogram = np.zeros(n_bins)
+    if gcdfilename:
+        gcdfile = dataio.I3File(gcdfilename)
+        write_log("Using GCD file "+gcdfilename, logfilename)
+    else:
+        write_log("No unique GCD file found. Provide GCD filename in "+ \
+                  "command arguments.", logfilename)
+
+
+    geometry_frame = gcdfile.pop_frame()
+    om_geometry = geometry_frame['I3Geometry'].omgeo
+
+    event_charges = []
+    late_charges = []
 
     i = 0
     numfiles = len(infiles)
@@ -195,44 +206,50 @@ else:
                             elif frame.Stop.id=="P":
                                 event.append(frame)
 
-        # For each event, get the trigger window from each P frame with
-        # that information available, then add the pulses from that frame's
-        # pulse map into the histogram and take note of which bins were included
-        # in the trigger window for dividing out later
+        # For each event in each P frame, get the reconstructed particle track
+        # Then evaluate residual times for each pulse to determine if the pulse
+        # is in a DOM on the particle track or is a late pulse
         for event in minbias_events:
             q_frame = event[0]
             frame_not_analyzed = True
             for p_frame in event[1:]:
-                if 'I3TriggerHierarchy' in p_frame:
+                if 'SPEFitSingle' in p_frame and 'I3TriggerHierarchy' in p_frame:
                     for key,value in p_frame['I3TriggerHierarchy'].iteritems():
                         if value.key.type==value.key.type.MERGED:
                             trigger_window = value
                             break
 
+                    # Ignore events with trigger window larger than 10 microseconds
+                    # Should cut out coincident muons and slow particle triggers
+                    if trigger_window.length>10000:
+                        continue
+
                     pulse_map = \
-                    dataclasses.I3RecoPulseSeriesMap.from_frame(p_frame,
-                                                     'InIcePulses')
-                    pulses = []
-                    for key,value in pulse_map.iteritems():
-                        pulses.extend(value)
-                    times = []
-                    for pulse in pulses:
-                        times.append(pulse.time)
+                    dataclasses.I3RecoPulseSeriesMap.from_frame(p_frame,'InIcePulses')
 
-                    trig_window_start = int(trigger_window.time/bin_width)
-                    trig_window_stop = int((trigger_window.time+\
-                                       trigger_window.length)/bin_width)
+                    fit_particle = p_frame['SPEFitSingle']
 
-                    for time_index in range(trig_window_start,
-                                            trig_window_stop+1):
-                        if time_index<len(trigger_histogram):
-                            trigger_histogram[time_index] += 1
 
-                    for pulse_time in times:
-                        time_index = int(pulse_time/bin_width)
-                        if time_index>=trig_window_start and \
-                           time_index<=trig_window_stop:
-                            hits_histogram[time_index] += 1
+                    event_pulses = []
+                    late_pulses = []
+                    for om,pulses in pulse_map.iteritems():
+                        for pulse in pulses:
+                            t_res = time_residual(fit_particle,om_geometry[om].position,
+                                                  pulse.time)
+                            if t_res>-75 and t_res<200:
+                                event_pulses.append(pulse)
+                            elif t_res>1000:
+                                late_pulses.append(pulse)
+
+                    event_charge = 0
+                    for pulse in event_pulses:
+                        event_charge += pulse.charge
+                    event_charges.append(event_charge)
+
+                    late_charge = 0
+                    for pulse in late_pulses:
+                        late_charge += pulse.charge
+                    late_charges.append(late_charge)
 
                     total_events += 1
                     frame_not_analyzed = False
@@ -241,35 +258,14 @@ else:
                 write_log("  I3TriggerHierarchy not found in frame",logfilename)
 
 
-    # Data histogram provided by dividing hits histogram by trigger window hist
-    data_histogram = np.zeros(n_bins)
-    for i in range(len(trigger_histogram)):
-        if trigger_histogram[i]==0:
-            data_histogram[i] = 0
-        else:
-            data_histogram[i] = hits_histogram[i]/trigger_histogram[i]
-
-    plot_title = str(total_events)+" minbias events"
+    # Plot total late charge vs total event charge for each event
+    plot_title = "Charges of "+str(total_events)+" minbias events"
     plt.figure()
-    plt.plot(data_histogram)
+    plt.plot(event_charges,late_charges)
     plt.title(plot_title)
-    plt.xlabel("Time (microsecond bins)")
-    plt.ylabel("Hits per bin - rescaled by number of trigger windows in bin")
+    plt.xlabel("Total Event Charge")
+    plt.ylabel("Total Late Charge")
     plotfilename = os.path.join(outputdir,plot_title.replace(" ","_")+".png")
     plt.savefig(plotfilename)
     if showplots:
         plt.show()
-
-
-    if picklefilename!=None:
-        picklefilename = os.path.join(outputdir,picklefilename)
-        hists = {}
-        hists['num_events'] = total_events
-        hists['hits'] = hits_histogram
-        hists['triggers'] = trigger_histogram
-        hists['plot'] = data_histogram
-        # Store data into pickle
-        write_log("Storing histograms to pickle file "+picklefilename,
-                  logfilename)
-        with open(picklefilename, 'wb') as picklefile:
-            pickle.dump(hists, picklefile, protocol=pickle.HIGHEST_PROTOCOL)
