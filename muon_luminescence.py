@@ -211,7 +211,6 @@ else:
         # is in a DOM on the particle track or is a late pulse
         for event in minbias_events:
             q_frame = event[0]
-            frame_not_analyzed = True
             for p_frame in event[1:]:
                 if 'SPEFitSingle' in p_frame and 'I3TriggerHierarchy' in p_frame:
                     for key,value in p_frame['I3TriggerHierarchy'].iteritems():
@@ -253,16 +252,12 @@ else:
                     late_charges.append(late_charge)
 
                     total_events += 1
-                    frame_not_analyzed = False
-
-            if frame_not_analyzed:
-                write_log("  problems analyzing frame",logfilename)
 
 
     # Plot total late charge vs total event charge for each event
     plot_title = "Charges of "+str(total_events)+" minbias events"
     plt.figure()
-    plt.plot(event_charges,late_charges)
+    plt.plot(event_charges,late_charges,"ko")
     plt.title(plot_title)
     plt.xlabel("Total Event Charge")
     plt.ylabel("Total Late Charge")
