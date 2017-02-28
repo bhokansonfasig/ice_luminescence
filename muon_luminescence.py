@@ -257,7 +257,7 @@ else:
     # Plot total late charge vs total event charge for each event
     plot_title = "Charges of "+str(total_events)+" minbias events"
     plt.figure()
-    plt.plot(event_charges,late_charges,"ko")
+    plt.plot(event_charges,late_charges,"k.")
     plt.title(plot_title)
     plt.xlabel("Total Event Charge")
     plt.ylabel("Total Late Charge")
