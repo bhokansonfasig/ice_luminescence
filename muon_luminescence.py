@@ -7,7 +7,7 @@
 #
 # Ben Hokanson-Fasig
 # Created   01/18/17
-# Last edit 02/28/17
+# Last edit 03/28/17
 
 
 from __future__ import division, print_function
@@ -35,12 +35,12 @@ parser.add_argument('-l', '--logfile',
 parser.add_argument('-o', '--outputdir', default='.',
                     help="""directory to place output. Defaults to current
                     directory""")
-parser.add_argument('-k', '--keyword', default='', type=str,
-                    help="""keyword for grabbing specific files from data
+parser.add_argument('-k', '--keyword', nargs='+', default=[''], type=str,
+                    help="""keyword(s) for grabbing specific files from data
                     directory/directories (any files containing the keyword)""")
-parser.add_argument('--antikeyword', type=str,
-                    default='thisISanANTIKEYWORDandHOPEFULLYitISlongANDobscureENOUGHthatNOfileCOULDpossiblyHAVEit',
-                    help="""keyword for grabbing specific files from data
+parser.add_argument('--antikeyword', nargs='+', type=str,
+                    default=['thisISanANTIKEYWORDandHOPEFULLYitISlongANDobscureENOUGHthatNOfileCOULDpossiblyHAVEit'],
+                    help="""keyword(s) for grabbing specific files from data
                     directory/directories (any files NOT containing the
                     antikeyword)""")
 parser.add_argument('--filter', action='store_true')
@@ -52,8 +52,8 @@ datadirs = args.datadir
 gcdfilename = args.gcdfile
 logfilename = args.logfile
 outputdir = args.outputdir
-filekeyword = args.keyword
-fileantikeyword = args.antikeyword
+filekeywords = args.keyword
+fileantikeywords = args.antikeyword
 filteri3 = args.filter
 showplots = args.showplots
 
@@ -85,13 +85,17 @@ def write_log(logline, logfilestr):
             logfile.close()
 
 
-def grab_filenames(datadir,keyword,antikeyword):
+def grab_filenames(datadir,keywords,antikeywords):
     """Returns a list of file names in datadir containing the keyword"""
     allfiles = os.listdir(datadir)
     matching = []
     for filename in allfiles:
-        if ".i3" in filename and keyword in filename and \
-        not(antikeyword in filename):
+        match = bool(".i3" in filename)
+        for keyword in keywords:
+            match = match and (keyword in filename)
+        for antikeyword in antikeywords:
+            match = match and not(antikeyword in filename)
+        if match:
             matching.append(os.path.join(datadir,filename))
     return sorted(matching)
 
@@ -107,8 +111,10 @@ dirstring = ""
 for directory in datadirs:
     dirstring += '\n\t'+directory
 write_log("Reading i3 files from:"+dirstring, logfilename)
-if filekeyword:
-    write_log("  filtered by keyword: "+filekeyword, logfilename)
+if filekeywords!=['']:
+    write_log("  filtered by keyword: "+str(filekeywords), logfilename)
+if fileantikeywords!=['thisISanANTIKEYWORDandHOPEFULLYitISlongANDobscureENOUGHthatNOfileCOULDpossiblyHAVEit']:
+    write_log("  filtered by anti-keyword: "+str(fileantikeywords), logfilename)
 
 
 # Filtering files
@@ -116,7 +122,7 @@ if filteri3:
     write_log("Filtering files and placing in: "+outputdir, logfilename)
     infiles = []
     for directory in datadirs:
-        infiles.extend(grab_filenames(directory,filekeyword,fileantikeyword))
+        infiles.extend(grab_filenames(directory,filekeywords,fileantikeywords))
 
     i = 0
     numfiles = len(infiles)
@@ -158,10 +164,10 @@ else:
     write_log("Outputting to: "+outputdir, logfilename)
     infiles = []
     for directory in datadirs:
-        infiles.extend(grab_filenames(directory,filekeyword,fileantikeyword))
+        infiles.extend(grab_filenames(directory,filekeywords,fileantikeywords))
 
     if not(gcdfilename):
-        possiblegcd = grab_filenames(directory,"GCD",fileantikeyword)
+        possiblegcd = grab_filenames(directory,"GCD",fileantikeywords)
         if len(possiblegcd)==1:
             gcdfilename = possiblegcd[0]
 
