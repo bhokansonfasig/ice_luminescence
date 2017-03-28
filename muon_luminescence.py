@@ -234,11 +234,11 @@ else:
                     for om,pulses in pulse_map.iteritems():
                         for pulse in pulses:
                             t_res = I3Calculator.time_residual(fit_particle,
-                                                               om_geometry[om].position,
-                                                               pulse.time)
-                            if t_res>-75 and t_res<200:
+                                                 om_geometry[om].position,
+                                                 pulse.time)
+                            if t_res>-75 and t_res<1000:
                                 event_pulses.append(pulse)
-                            elif t_res>1000:
+                            elif t_res>2000:
                                 late_pulses.append(pulse)
 
                     event_charge = 0
@@ -261,7 +261,7 @@ else:
     plt.title(plot_title)
     plt.xlabel("Total Event Charge")
     plt.ylabel("Total Late Charge")
-    plotfilename = os.path.join(outputdir,plot_title.replace(" ","_")+".png")
+    plotfilename = os.path.join(outputdir,plot_title.replace(" ","_").lower()+".png")
     plt.savefig(plotfilename)
     if showplots:
         plt.show()
