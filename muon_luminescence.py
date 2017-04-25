@@ -109,7 +109,7 @@ if logfilename!=None:
 # Write first lines to log file
 dirstring = ""
 for directory in datadirs:
-    dirstring += '\n\t'+directory
+    dirstring += '\n    '+directory
 write_log("Reading i3 files from:"+dirstring, logfilename)
 if filekeywords!=['']:
     write_log("  filtered by keyword: "+str(filekeywords), logfilename)
@@ -179,8 +179,13 @@ else:
                   "command arguments.", logfilename)
 
 
+    # Bad hack in case there's a frame before the geometry frame
     geometry_frame = gcdfile.pop_frame()
-    om_geometry = geometry_frame['I3Geometry'].omgeo
+    try:
+        om_geometry = geometry_frame['I3Geometry'].omgeo
+    except KeyError:
+        geometry_frame = gcdfile.pop_frame()
+        om_geometry = geometry_frame['I3Geometry'].omgeo
 
     event_charges = []
     late_charges = []
