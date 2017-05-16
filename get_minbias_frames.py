@@ -1,5 +1,5 @@
 #!/bin/sh /cvmfs/icecube.opensciencegrid.org/py2-v2/icetray-start
-#METAPROJECT offline-software/trunk
+#METAPROJECT combo/stable
 #
 # get_minbias_frames.py
 # Script for pulling frames from i3 files that pass the minbias filter
