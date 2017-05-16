@@ -50,7 +50,7 @@ fileantikeywords = args.antikeyword
 import os
 
 # IceCube libraries
-from icecube import icetray, dataio
+from icecube import icetray, dataio, dataclasses
 from I3Tray import I3Tray
 
 
@@ -75,7 +75,7 @@ def minBiasOnly(frame):
     """Passes only frames which pass the min bias filter"""
     if 'QFilterMask' not in frame:
         return False
-    for filtername,result in frame['QFilterMask']:
+    for filtername,result in frame['QFilterMask'].iteritems():
         if ('FilterMinBias' in filtername) and not('SDST' in filtername):
             if result.condition_passed and result.prescale_passed:
                 return True
