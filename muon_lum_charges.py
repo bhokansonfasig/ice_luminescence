@@ -1,5 +1,5 @@
 #!/bin/sh /cvmfs/icecube.opensciencegrid.org/py2-v2/icetray-start
-#METAPROJECT offline-software/trunk
+#METAPROJECT combo/stable
 #
 # muon_lum_charges.py
 # Script for calculating event and late charges from muon events
@@ -35,7 +35,7 @@ outfilename = args.outfile
 
 
 # IceCube libraries
-from icecube import icetray, dataclasses
+from icecube import icetray, dataio, dataclasses
 from icecube.phys_services import I3Calculator
 from I3Tray import I3Tray
 

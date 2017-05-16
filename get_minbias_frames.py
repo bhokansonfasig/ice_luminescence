@@ -50,7 +50,7 @@ fileantikeywords = args.antikeyword
 import os
 
 # IceCube libraries
-from icecube import icetray
+from icecube import icetray, dataio
 from I3Tray import I3Tray
 
 
