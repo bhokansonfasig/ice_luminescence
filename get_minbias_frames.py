@@ -84,7 +84,8 @@ def minBiasOnly(frame):
 
 # Try to find GCD file if none provided
 if not(gcdfilename) and len(datadirs)==1:
-    possiblegcd = grab_filenames(datadirs[0],"GCD",fileantikeywords)
+    gcdantikeywords = [word for word in fileantikeywords if word!="GCD"]
+    possiblegcd = grab_filenames(datadirs[0],"GCD",gcdantikeywords)
     if len(possiblegcd)==1:
         gcdfilename = possiblegcd[0]
         print("Using found GCD file",gcdfilename)
