@@ -75,7 +75,7 @@ def minBiasOnly(frame):
     """Passes only frames which pass the min bias filter"""
     if 'QFilterMask' not in frame:
         return False
-    for filtername,result in frame['QFilterMask'].iteritems():
+    for filtername,result in frame['QFilterMask']:
         if ('FilterMinBias' in filtername) and not('SDST' in filtername):
             if result.condition_passed and result.prescale_passed:
                 return True
