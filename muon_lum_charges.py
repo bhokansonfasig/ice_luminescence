@@ -7,7 +7,7 @@
 #
 # Ben Hokanson-Fasig
 # Created   05/16/17
-# Last edit 05/16/17
+# Last edit 05/17/17
 
 
 from __future__ import division, print_function
@@ -19,15 +19,15 @@ parser_ep = """Note that this script depends on the IceCube project's custom
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(description=parser_desc, epilog=parser_ep)
-parser.add_argument('infile', nargs='+',
-                    help="input i3 file of muon events")
+parser.add_argument('infiles', nargs='+',
+                    help="input i3 file(s) of muon events")
 parser.add_argument('-o', '--outfile', default='./muon_lum_charges.i3',
                     help="""output file name. Defaults to 'muon_lum_charges.i3'
                     in current directory""")
 args = parser.parse_args()
 
 # Store arguments to variables for rest of the script
-infilename = args.infile
+infilenames = args.infiles
 outfilename = args.outfile
 
 
@@ -105,13 +105,16 @@ class ChargeModule(icetray.I3Module):
 
 
 # Print information about input & output files
-print("Reading from file",infilename)
+filestring = ""
+for filename in infilenames:
+    filestring += '\n    '+filename
+print("Reading i3 file(s):"+filestring)
 print("Writing charges in P-frames to file",outfilename)
 
 
 # Use icetray to calculate charges of physics frames and write to file
 tray = I3Tray()
-tray.Add('I3Reader',"reader",FileNameList=infilename)
+tray.Add('I3Reader',"reader",FileNameList=infilenames)
 tray.Add(ChargeModule)
 tray.Add('I3Writer',"writer",FileName=outfilename,
          DropOrphanStreams=[icetray.I3Frame.Calibration,icetray.I3Frame.DAQ])
