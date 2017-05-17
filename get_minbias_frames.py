@@ -7,7 +7,7 @@
 #
 # Ben Hokanson-Fasig
 # Created   05/16/17
-# Last edit 05/16/17
+# Last edit 05/17/17
 
 
 from __future__ import division, print_function
@@ -91,6 +91,9 @@ if filekeywords!=['']:
     print("  filtered by keyword:",filekeywords)
 if fileantikeywords!=['thisISanANTIKEYWORDandHOPEFULLYitISlongANDobscureENOUGHthatNOfileCOULDpossiblyHAVEit']:
     print("  filtered by anti-keyword:",fileantikeywords)
+
+if gcdfilename!='':
+    print("Using GCD file",gcdfilename)
 
 
 # Try to find GCD file if none provided
