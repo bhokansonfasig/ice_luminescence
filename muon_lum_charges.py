@@ -103,6 +103,13 @@ class ChargeModule(icetray.I3Module):
 
 
 
+
+# Print information about input & output files
+print("Reading from file",infilename)
+print("Writing charges in P-frames to file",outfilename)
+
+
+# Use icetray to calculate charges of physics frames and write to file
 tray = I3Tray()
 tray.Add('I3Reader',"reader",FileNameList=infilename)
 tray.Add(ChargeModule)
