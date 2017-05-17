@@ -82,6 +82,17 @@ def minBiasOnly(frame):
     return False
 
 
+# Print information about input files
+dirstring = ""
+for directory in datadirs:
+    dirstring += '\n    '+directory
+print("Reading i3 files from:"+dirstring)
+if filekeywords!=['']:
+    print("  filtered by keyword:",filekeywords)
+if fileantikeywords!=['thisISanANTIKEYWORDandHOPEFULLYitISlongANDobscureENOUGHthatNOfileCOULDpossiblyHAVEit']:
+    print("  filtered by anti-keyword:",fileantikeywords)
+
+
 # Try to find GCD file if none provided
 if not(gcdfilename) and len(datadirs)==1:
     gcdantikeywords = [word for word in fileantikeywords if word!="GCD"]
@@ -99,6 +110,10 @@ else:
 # Grab the rest of the input files
 for directory in datadirs:
     infiles.extend(grab_filenames(directory,filekeywords,fileantikeywords))
+
+
+# Print information about output file
+print("Writing minbias frames to file",outfilename)
 
 
 # Use icetray to filter all the minbias frames into a single file
