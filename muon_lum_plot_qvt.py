@@ -59,9 +59,10 @@ for filename in infilenames:
         print("No geometry found in file",filename)
         continue
 
+    tmin = -1000
     tmax = 10000 #in microseconds
     tstep = 1 #in microseconds
-    times = np.arange(0,tmax,tstep)
+    times = np.arange(0,tmax-tmin,tstep)
     charges = np.zeros(len(times))
     # For each P frame, add pulse charges to their time bins
     for frame in datafile:
@@ -87,10 +88,13 @@ for filename in infilenames:
                 late_pulses = []
                 for om,pulses in pulse_map.iteritems():
                     for pulse in pulses:
-                        if pulse.time>=tmax:
+                        t_res = I3Calculator.time_residual(fit_particle,
+                                                 om_geometry[om].position,
+                                                 pulse.time)
+                        if t_res>=tmax or t_res<tmin:
                             continue
                         else:
-                            tindex = int(pulse.time/tstep)
+                            tindex = int((t_res-tmin)/tstep)
                             charges[tindex] += pulse.charge
 
                 total_events += 1
@@ -100,8 +104,10 @@ for filename in infilenames:
 plot_title = "Charge vs time of "+str(total_events)+" minbias events"
 plt.figure()
 plt.plot(times,charges)
+plt.axvline(-tmin/tstep)
 plt.title(plot_title)
-plt.xlabel("Time ("+str(tstep)+r" $\mu$"+"s bins)")
+plt.xlabel("Residual Time ("+str(tmin)+r" $\mu$s to "+str(tmax)+r" $\mu$s in "\
+           +str(tstep)+r" $\mu$s bins)")
 plt.ylabel("Charge (p.e.)")
 if plotfilename is None:
     plotfilename = plot_title.replace(" ","_").lower()+".png"
