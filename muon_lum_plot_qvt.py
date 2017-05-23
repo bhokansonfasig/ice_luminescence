@@ -89,8 +89,8 @@ for filename in infilenames:
                 for om,pulses in pulse_map.iteritems():
                     for pulse in pulses:
                         t_res = I3Calculator.time_residual(fit_particle,
-                                                 om_geometry[om].position,
-                                                 pulse.time)
+                                                           omgeo[om].position,
+                                                           pulse.time)
                         if t_res>=tmax or t_res<tmin:
                             continue
                         else:
